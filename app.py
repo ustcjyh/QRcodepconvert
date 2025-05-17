@@ -79,45 +79,21 @@ if uploaded_file is not None:
         # 将二维码图像保存到列表
         qr_images.append((code_id, qr_img))
 
-    # 每两个二维码合并为一张图片
-    total_width = qr_images[0][1].width * 2 + 10  # 两个二维码的宽度加间距
-    max_height = max(img[1].height for img in qr_images)
+    # 只展示前四个二维码
+    display_images = qr_images[:4]
 
-    # 遍历二维码列表，每两个二维码合并为一张图片
-    combined_images = []
-    for i in range(0, len(qr_images), 2):
-        img1_code_id, img1 = qr_images[i]
-        img2_code_id, img2 = qr_images[i + 1] if i + 1 < len(qr_images) else (None, None)
-
-        # 创建一个新的图像，容纳两个二维码
-        combined_img = Image.new('RGB', (total_width, max_height), 'white')
-
-        # 将第一个二维码放在左边
-        combined_img.paste(img1, (0, 0))
-
-        # 将第二个二维码放在右边，间距为 1mm
-        if img2:
-            combined_img.paste(img2, (img1.width + 10, 0))
-
-        # 将合并后的二维码图像转换为可以在 Streamlit 中显示的格式
-        combined_images.append(combined_img)
-
-    # 显示合并后的二维码图像
-    for i, combined_img in enumerate(combined_images):
-        st.image(combined_img, caption=f"二维码组合 {i + 1}", use_column_width=True)
-
-        # 提供下载链接
-        combined_img_path = f"combined_qrcode_{i + 1}.png"
-        combined_img.save(combined_img_path)
+    # 显示前四个二维码
+    for i, (code_id, img) in enumerate(display_images):
+        st.image(img, caption=f"二维码 {i + 1} - {code_id}", use_column_width=True)
 
     # 创建一个 ZIP 文件以供一键下载所有二维码
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-        for i, combined_img in enumerate(combined_images):
-            img_name = f"combined_qrcode_{i + 1}.png"
-            combined_img_path = os.path.join("/tmp", img_name)
-            combined_img.save(combined_img_path)
-            zip_file.write(combined_img_path, arcname=img_name)
+        for i, (code_id, img) in enumerate(qr_images):
+            img_name = f"qrcode_{code_id}.png"
+            img_path = os.path.join("/tmp", img_name)
+            img.save(img_path)
+            zip_file.write(img_path, arcname=img_name)
 
     zip_buffer.seek(0)
 
