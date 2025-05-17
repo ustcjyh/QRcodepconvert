@@ -37,13 +37,14 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     # 在二维码下方添加 Code_ID 文本
     draw = ImageDraw.Draw(new_img)
     
-    # 使用大字体（这里可以调整字体大小）
+    # 根据二维码宽度计算字体大小
+    font_size = int(img.width // len(code_id))  # 根据二维码宽度动态计算字体大小
     try:
-        font = ImageFont.truetype("arial.ttf", 24)  # 使用字体 Arial，大小为24
+        font = ImageFont.truetype("arial.ttf", font_size)  # 使用字体 Arial，大小为计算后的值
     except IOError:
         font = ImageFont.load_default()  # 如果 Arial 字体不可用，使用默认字体
 
-    # 使用 textbbox 来获取文本的宽度和高度
+    # 获取文本的宽度和高度
     text_bbox = draw.textbbox((0, 0), code_id, font=font)
     text_width, text_height = text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1]
 
