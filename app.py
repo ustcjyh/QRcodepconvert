@@ -3,6 +3,8 @@ import pandas as pd
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import os
+import zipfile
+import io
 
 # 生成二维码并返回图像
 def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height_mm=12):
@@ -108,10 +110,21 @@ if uploaded_file is not None:
         combined_img_path = f"combined_qrcode_{i + 1}.png"
         combined_img.save(combined_img_path)
 
-        with open(combined_img_path, "rb") as file:
-            st.download_button(
-                label=f"下载二维码组合 {i + 1}",
-                data=file,
-                file_name=combined_img_path,
-                mime="image/png"
-            )
+    # 创建一个 ZIP 文件以供一键下载所有二维码
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for i, combined_img in enumerate(combined_images):
+            img_name = f"combined_qrcode_{i + 1}.png"
+            combined_img_path = os.path.join("/tmp", img_name)
+            combined_img.save(combined_img_path)
+            zip_file.write(combined_img_path, arcname=img_name)
+
+    zip_buffer.seek(0)
+
+    # 提供下载所有二维码的 ZIP 文件
+    st.download_button(
+        label="下载所有二维码 (ZIP)",
+        data=zip_buffer,
+        file_name="qrcodes.zip",
+        mime="application/zip"
+    )
