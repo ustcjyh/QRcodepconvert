@@ -7,7 +7,7 @@ import zipfile
 import io
 
 # 生成二维码并返回图像
-def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height_mm=12, font_size=30):
+def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height_mm=12, font_size=60):
     mm_to_inch = 25.4  # 1 英寸 = 25.4mm
     desired_width_pixels = int((width_mm / mm_to_inch) * dpi)
     desired_height_pixels = int((height_mm / mm_to_inch) * dpi)
@@ -31,7 +31,7 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     img = img.resize((desired_width_pixels, desired_height_pixels))  # 调整二维码大小
 
     # 创建一个新的图像，包含二维码和文本
-    new_img = Image.new('RGB', (img.width, img.height + 50), 'white')  # 新图像高度增加50px
+    new_img = Image.new('RGB', (img.width, img.height + 20), 'white')  # 新图像高度增加50px
     new_img.paste(img, (0, 0))
 
     # 在二维码下方添加 Code_ID 文本
