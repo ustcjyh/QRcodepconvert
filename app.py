@@ -37,12 +37,35 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     # 在二维码下方添加 Code_ID 文本
     draw = ImageDraw.Draw(new_img)
     
-    # 根据二维码宽度计算字体大小，但确保字体不会太小
-    font_size = max(min_font_size, int(img.width // len(code_id)))  # 使用最大值和计算后的值
+    # 计算合适的字体大小，使得文本宽度等于二维码的宽度
+    font_size = min_font_size
     try:
-        font = ImageFont.truetype("arial.ttf", font_size)  # 使用字体 Arial，大小为计算后的值
+        font = ImageFont.truetype("arial.ttf", font_size)  # 使用字体 Arial，大小为初始值
     except IOError:
         font = ImageFont.load_default()  # 如果 Arial 字体不可用，使用默认字体
+    
+    # 计算字体大小，使得文本宽度等于二维码宽度
+    text_width, text_height = draw.textsize(code_id, font=font)
+    
+    # 根据二维码宽度调整字体大小
+    while text_width < img.width and font_size < 200:  # 设定最大字体大小为200
+        font_size += 1
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except IOError:
+            font = ImageFont.load_default()
+        
+        text_width, text_height = draw.textsize(code_id, font=font)
+    
+    # 如果字体超出二维码宽度，减少字体大小
+    while text_width > img.width and font_size > min_font_size:
+        font_size -= 1
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except IOError:
+            font = ImageFont.load_default()
+        
+        text_width, text_height = draw.textsize(code_id, font=font)
 
     # 获取文本的宽度和高度
     text_bbox = draw.textbbox((0, 0), code_id, font=font)
@@ -53,6 +76,7 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     draw.text(text_position, code_id, font=font, fill='black')
 
     return new_img
+
 
 
 # Streamlit 上传 CSV 文件
