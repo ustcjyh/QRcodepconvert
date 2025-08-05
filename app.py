@@ -7,7 +7,7 @@ import zipfile
 import io
 
 # 生成二维码并返回图像
-def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height_mm=12, min_font_size=20):
+def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height_mm=12, font_size=20):
     mm_to_inch = 25.4  # 1 英寸 = 25.4mm
     desired_width_pixels = int((width_mm / mm_to_inch) * dpi)
     desired_height_pixels = int((height_mm / mm_to_inch) * dpi)
@@ -37,35 +37,11 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     # 在二维码下方添加 Code_ID 文本
     draw = ImageDraw.Draw(new_img)
     
-    # 计算合适的字体大小，使得文本宽度等于二维码的宽度
-    font_size = min_font_size
+    # 直接使用指定的字体大小
     try:
-        font = ImageFont.truetype("arial.ttf", font_size)  # 使用字体 Arial，大小为初始值
+        font = ImageFont.truetype("arial.ttf", font_size)  # 使用字体 Arial，大小为指定值
     except IOError:
         font = ImageFont.load_default()  # 如果 Arial 字体不可用，使用默认字体
-    
-    # 计算字体大小，使得文本宽度等于二维码宽度
-    text_width, text_height = draw.textsize(code_id, font=font)
-    
-    # 根据二维码宽度调整字体大小
-    while text_width < img.width and font_size < 200:  # 设定最大字体大小为200
-        font_size += 1
-        try:
-            font = ImageFont.truetype("arial.ttf", font_size)
-        except IOError:
-            font = ImageFont.load_default()
-        
-        text_width, text_height = draw.textsize(code_id, font=font)
-    
-    # 如果字体超出二维码宽度，减少字体大小
-    while text_width > img.width and font_size > min_font_size:
-        font_size -= 1
-        try:
-            font = ImageFont.truetype("arial.ttf", font_size)
-        except IOError:
-            font = ImageFont.load_default()
-        
-        text_width, text_height = draw.textsize(code_id, font=font)
 
     # 获取文本的宽度和高度
     text_bbox = draw.textbbox((0, 0), code_id, font=font)
@@ -76,6 +52,7 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     draw.text(text_position, code_id, font=font, fill='black')
 
     return new_img
+
 
 
 
