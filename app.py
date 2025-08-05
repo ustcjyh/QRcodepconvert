@@ -76,7 +76,7 @@ if uploaded_file is not None:
         code_id = row['Code_ID']
         
         # 生成二维码
-        qr_img = generate_qrcode_with_text(sample_name, code_id, font_size=30)
+        qr_img = generate_qrcode_with_text(sample_name, code_id, font_size=60)
         
         # 将二维码图像保存到列表
         qr_images.append((code_id, qr_img))
