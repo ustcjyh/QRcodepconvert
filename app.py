@@ -7,7 +7,7 @@ import zipfile
 import io
 
 # 生成二维码并返回图像
-def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height_mm=12):
+def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height_mm=12, min_font_size=20):
     mm_to_inch = 25.4  # 1 英寸 = 25.4mm
     desired_width_pixels = int((width_mm / mm_to_inch) * dpi)
     desired_height_pixels = int((height_mm / mm_to_inch) * dpi)
@@ -37,8 +37,8 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     # 在二维码下方添加 Code_ID 文本
     draw = ImageDraw.Draw(new_img)
     
-    # 根据二维码宽度计算字体大小
-    font_size = int(img.width // len(code_id))  # 根据二维码宽度动态计算字体大小
+    # 根据二维码宽度计算字体大小，但确保字体不会太小
+    font_size = max(min_font_size, int(img.width // len(code_id)))  # 使用最大值和计算后的值
     try:
         font = ImageFont.truetype("arial.ttf", font_size)  # 使用字体 Arial，大小为计算后的值
     except IOError:
@@ -53,6 +53,7 @@ def generate_qrcode_with_text(sample_name, code_id, dpi=500, width_mm=12, height
     draw.text(text_position, code_id, font=font, fill='black')
 
     return new_img
+
 
 # Streamlit 上传 CSV 文件
 st.title('样本二维码生成器')
